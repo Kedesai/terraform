@@ -24,6 +24,18 @@ variable "enable_irsa" {
   default = true
 }
 
+variable "cluster_role_arn" {
+  description = "Existing IAM role ARN for EKS control plane"
+  type        = string
+  default     = null
+}
+
+variable "node_role_arn" {
+  description = "Existing IAM role ARN for worker nodes"
+  type        = string
+  default     = null
+}
+
 variable "node_groups" {
   type = map(object({
     instance_types = list(string)
@@ -43,4 +55,26 @@ variable "enable_cluster_creator_admin" {
 variable "tags" {
   type    = map(string)
   default = {}
+}
+
+
+#################################
+# PIPELINE METADATA
+#################################
+
+variable "pipeline_name" {
+  description = "CI/CD pipeline that triggered Terraform"
+  type        = string
+  default     = "local" # fallback if not passed
+}
+
+variable "run_id" {
+  description = "Pipeline run ID for tracking"
+  type        = string
+  default     = "manual"
+}
+
+variable "created_by" {
+  description = "User running Terraform"
+  type        = string
 }

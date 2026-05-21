@@ -1,4 +1,10 @@
+#################################
+# CLUSTER ROLE
+#################################
+
 resource "aws_iam_role" "eks_cluster" {
+  count = var.cluster_role_arn == null ? 1 : 0
+
   name = "${var.cluster_name}-cluster-role"
 
   assume_role_policy = jsonencode({
@@ -14,11 +20,19 @@ resource "aws_iam_role" "eks_cluster" {
 }
 
 resource "aws_iam_role_policy_attachment" "cluster" {
-  role       = aws_iam_role.eks_cluster.name
+  count = var.cluster_role_arn == null ? 1 : 0
+
+  role       = aws_iam_role.eks_cluster[0].name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
+#################################
+# NODE ROLE
+#################################
+
 resource "aws_iam_role" "nodes" {
+  count = var.node_role_arn == null ? 1 : 0
+
   name = "${var.cluster_name}-node-role"
 
   assume_role_policy = jsonencode({
@@ -34,12 +48,12 @@ resource "aws_iam_role" "nodes" {
 }
 
 resource "aws_iam_role_policy_attachment" "node_policies" {
-  for_each = toset([
+  for_each = var.node_role_arn == null ? toset([
     "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
     "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  ])
+  ]) : {}
 
-  role       = aws_iam_role.nodes.name
+  role       = aws_iam_role.nodes[0].name
   policy_arn = each.value
 }
