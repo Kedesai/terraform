@@ -1,11 +1,18 @@
 
 resource "aws_eks_access_entry" "admin" {
-  cluster_name  = aws_eks_cluster.this.name
+  cluster_name = aws_eks_cluster.this.name
+
   principal_arn = var.cluster_role_arn != null ? var.cluster_role_arn : aws_iam_role.eks_cluster[0].arn
-}
-access_policies {
-  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-  access_scope {
-    type = "cluster"
+
+  #################################
+  # Access ploicy inside resource
+  #################################
+
+  access_policies {
+    policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+
+    access_scope {
+      type = "cluster"
+    }
   }
 }
