@@ -1,9 +1,9 @@
 # DynamoDB Table
 resource "aws_dynamodb_table" "this" {
-  name           = var.table_name
-  billing_mode   = var.billing_mode
-  hash_key       = var.hash_key
-  range_key      = var.range_key
+  name         = var.table_name
+  billing_mode = var.billing_mode
+  hash_key     = var.hash_key
+  range_key    = var.range_key
 
   dynamic "attribute" {
     for_each = concat(
@@ -30,9 +30,9 @@ resource "aws_dynamodb_table" "this" {
   dynamic "local_secondary_index" {
     for_each = var.local_secondary_indexes
     content {
-      name            = local_secondary_index.value.name
-      range_key       = local_secondary_index.value.range_key
-      projection_type = local_secondary_index.value.projection_type
+      name               = local_secondary_index.value.name
+      range_key          = local_secondary_index.value.range_key
+      projection_type    = local_secondary_index.value.projection_type
       non_key_attributes = local_secondary_index.value.non_key_attributes
     }
   }
@@ -40,10 +40,10 @@ resource "aws_dynamodb_table" "this" {
   dynamic "global_secondary_index" {
     for_each = var.global_secondary_indexes
     content {
-      name            = global_secondary_index.value.name
-      hash_key        = global_secondary_index.value.hash_key
-      range_key       = global_secondary_index.value.range_key
-      projection_type = global_secondary_index.value.projection_type
+      name               = global_secondary_index.value.name
+      hash_key           = global_secondary_index.value.hash_key
+      range_key          = global_secondary_index.value.range_key
+      projection_type    = global_secondary_index.value.projection_type
       non_key_attributes = global_secondary_index.value.non_key_attributes
 
       # Only set capacity for PROVISIONED billing mode
@@ -68,13 +68,17 @@ resource "aws_dynamodb_table" "this" {
     }
   }
 
-  dynamic "stream" {
-    for_each = var.stream_enabled ? ["enabled"] : []
-    content {
-      enabled      = true
-      view_type    = var.stream_view_type
-    }
-  }
+  #dynamic "stream" {
+  #  for_each = var.stream_enabled ? ["enabled"] : []
+  #  content {
+  #    enabled      = true
+  #    view_type    = var.stream_view_type
+  #  }
+  #}
+
+  stream_enabled   = var.stream_enabled
+  stream_view_type = var.stream_enabled ? var.stream_view_type : null
+
 
   dynamic "server_side_encryption" {
     for_each = var.server_side_encryption_kms_key_arn != null ? [1] : []
