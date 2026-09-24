@@ -20,6 +20,18 @@ variable "ami_id" {
   default     = null
 }
 
+variable "ami_owner" {
+  description = "AWS account ID *hat owns the approved AMI"
+  type        = string
+  default     = null
+}
+
+variable "ami_name" {
+  description = "Name of the approved AMI"
+  type        = string
+  default     = null
+}
+
 variable "key_name" {
   description = "EC2 Key Pair name for SSH access"
   type        = string
@@ -70,11 +82,11 @@ variable "root_volume_kms_key_id" {
 variable "additional_ebs_volumes" {
   description = "Additional EBS volumes to attach"
   type = list(object({
-    device_name  = string
-    volume_size  = number
-    volume_type  = optional(string, "gp3")
-    encrypted    = optional(bool, true)
-    kms_key_id   = optional(string, null)
+    device_name           = string
+    volume_size           = number
+    volume_type           = optional(string, "gp3")
+    encrypted             = optional(bool, true)
+    kms_key_id            = optional(string, null)
     delete_on_termination = optional(bool, true)
   }))
   default = []
