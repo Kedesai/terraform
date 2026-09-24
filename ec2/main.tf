@@ -1,11 +1,11 @@
 # Data source for latest Amazon Linux 2 AMI
-data "aws_ami" "amazon_linux" {
+data "aws_ami" "approved" {
   most_recent = true
-  owners      = ["amazon"]
+  owners      = [var.ami_owner]
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = [var.ami_name]
   }
 
   filter {
@@ -16,7 +16,7 @@ data "aws_ami" "amazon_linux" {
 
 # EC2 Instance
 resource "aws_instance" "this" {
-  ami                         = var.ami_id != null ? var.ami_id : data.aws_ami.amazon_linux.id
+  ami                         = var.ami_id != null ? var.ami_id : data.aws_ami.approved.id
   instance_type               = var.instance_type
   key_name                    = var.key_name
   subnet_id                   = var.subnet_id
@@ -36,11 +36,11 @@ resource "aws_instance" "this" {
   }
 
   root_block_device {
-    volume_size              = var.root_volume_size
-    volume_type              = var.root_volume_type
-    encrypted                = var.root_volume_encrypted
-    kms_key_id               = var.root_volume_kms_key_id
-    delete_on_termination    = true
+    volume_size           = var.root_volume_size
+    volume_type           = var.root_volume_type
+    encrypted             = var.root_volume_encrypted
+    kms_key_id            = var.root_volume_kms_key_id
+    delete_on_termination = true
     tags = merge(
       {
         Name = "${var.instance_name}-root"
