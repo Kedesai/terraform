@@ -61,13 +61,13 @@ variable "attributes" {
 variable "global_secondary_indexes" {
   description = "List of global secondary indexes"
   type = list(object({
-    name            = string
-    hash_key        = optional(string)
-    range_key       = optional(string)
-    projection_type = optional(string, "ALL")
+    name               = string
+    hash_key           = optional(string)
+    range_key          = optional(string)
+    projection_type    = optional(string, "ALL")
     non_key_attributes = optional(list(string), null)
-    write_capacity  = optional(number)
-    read_capacity   = optional(number)
+    write_capacity     = optional(number)
+    read_capacity      = optional(number)
   }))
   default = []
 }
@@ -75,9 +75,9 @@ variable "global_secondary_indexes" {
 variable "local_secondary_indexes" {
   description = "List of local secondary indexes"
   type = list(object({
-    name            = string
-    range_key       = string
-    projection_type = optional(string, "ALL")
+    name               = string
+    range_key          = string
+    projection_type    = optional(string, "ALL")
     non_key_attributes = optional(list(string), null)
   }))
   default = []
