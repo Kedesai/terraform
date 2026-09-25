@@ -66,3 +66,27 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_vpc" {
+  description = "Whether Terraform should create and manage a new VPC"
+  type        = bool
+  default     = true
+}
+
+variable "existing_vpc_id" {
+  description = "Existing VPC ID to use when create_vpc is false"
+  type        = string
+  default     = null
+}
+
+variable "existing_public_subnet_ids" {
+  description = "Existing public subnet IDs to use when create_vpc is false"
+  type        = list(string)
+  default     = []
+}
+
+variable "existing_private_subnet_ids" {
+  description = "Existing private subnet IDs to use when create_vpc is false"
+  type        = list(string)
+  default     = []
+}
