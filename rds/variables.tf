@@ -178,12 +178,6 @@ variable "create_db_subnet_group" {
   default     = false
 }
 
-variable "db_subnet_group_name" {
-  description = "Name of the DB subnet group"
-  type        = string
-  default     = null
-}
-
 variable "db_subnet_group_description" {
   description = "Description of the DB subnet group"
   type        = string
