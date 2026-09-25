@@ -42,3 +42,17 @@ output "db_instance_availability_zone" {
   description = "The availability zone of the instance"
   value       = aws_db_instance.this.availability_zone
 }
+
+output "db_subnet_group_name" {
+  description = "Name of the DB subnet group used by the RDS instance"
+  value = var.create_db_subnet_group ? (
+    aws_db_subnet_group.this[0].name
+  ) : var.db_subnet_group_name
+}
+
+output "db_subnet_group_arn" {
+  description = "ARN of the created DB subnet group"
+  value = var.create_db_subnet_group ? (
+    aws_db_subnet_group.this[0].arn
+  ) : null
+}
