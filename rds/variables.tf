@@ -171,3 +171,27 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_db_subnet_group" {
+  description = "Whether to create a DB subnet group"
+  type        = bool
+  default     = false
+}
+
+variable "db_subnet_group_name" {
+  description = "Name of the DB subnet group"
+  type        = string
+  default     = null
+}
+
+variable "db_subnet_group_description" {
+  description = "Description of the DB subnet group"
+  type        = string
+  default     = "Managed by Terraform"
+}
+
+variable "db_subnet_ids" {
+  description = "Existing subnet IDs to include in the DB subnet group"
+  type        = list(string)
+  default     = []
+}
