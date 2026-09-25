@@ -110,3 +110,145 @@ module "ec2" {
 | public_dns | The public DNS name (if assigned) |
 | private_dns | The private DNS name |
 | availability_zone | The availability zone of the instance |
+
+## Calling Module
+
+This reusable module is consumed from the deployment repository:
+
+```text
+Kedesai/call-terraform/ec2
+```
+
+### Module Source
+
+```hcl
+module "ec2" {
+  source = "git::https://github.com/Kedesai/terraform.git//ec2?ref=main"
+
+  instance_name = var.instance_name
+  environment   = var.environment
+  instance_type = var.instance_type
+
+  ami_owner = var.ami_owner
+  ami_name  = var.ami_name
+
+  subnet_id = var.subnet_id
+
+  vpc_security_group_ids = var.vpc_security_group_ids
+
+  associate_public_ip = false
+
+  root_volume_size      = var.root_volume_size
+  root_volume_type      = var.root_volume_type
+  root_volume_encrypted = true
+
+  tags = var.tags
+}
+```
+
+For production deployments, use a Git tag or commit SHA rather than `ref=main`.
+
+## Required Calling Parameters
+
+The calling configuration must provide:
+
+```text
+instance_name
+environment
+subnet_id
+```
+
+The deployment also normally provides:
+
+```text
+aws_region
+instance_type
+ami_owner
+ami_name
+vpc_security_group_ids
+root_volume_size
+root_volume_type
+tags
+```
+
+### Approved AMI
+
+Example:
+
+```hcl
+ami_owner = "853826937896"
+ami_name  = "UBUNTU-22-PRO-x86 2026-09-01T08-00-32.122Z"
+```
+
+### Existing Networking
+
+The calling configuration provides existing networking:
+
+```hcl
+subnet_id = "subnet-xxxxxxxx"
+
+vpc_security_group_ids = [
+  "sg-xxxxxxxx"
+]
+```
+
+The EC2 module does not need to create the VPC, subnet, or security group.
+
+## HCP Terraform
+
+Typical workspace configuration:
+
+```text
+Repository:           Kedesai/call-terraform
+Working Directory:    ec2
+VCS Trigger:          Branch-based
+VCS Branch:           Default branch
+Trigger Pattern:      ec2/**/*
+Speculative PR Plans: Enabled
+Auto Apply:           Disabled
+```
+
+### Terraform Variables
+
+Environment-specific values can be supplied through the HCP Terraform workspace, including:
+
+```text
+aws_region
+instance_name
+environment
+```
+
+Structured non-secret values such as subnet IDs, security groups, AMI selection, instance sizing, and tags may also be defined in the calling configuration.
+
+## AWS Credentials
+
+AWS access keys, secret keys, and session tokens must **not** be committed to either GitHub repository.
+
+Do not store AWS credentials in:
+
+```text
+main.tf
+variables.tf
+terraform.tfvars
+README.md
+```
+
+AWS authentication should be supplied by HCP Terraform, such as through a shared Variable Set or dynamic AWS credentials.
+
+## GitOps Workflow
+
+```text
+Feature Branch
+      ↓
+Pull Request
+      ↓
+HCP Terraform Speculative Plan
+      ↓
+Review and Merge
+      ↓
+HCP Terraform Plan
+      ↓
+Manual Apply
+      ↓
+AWS
+```
