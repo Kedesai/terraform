@@ -18,7 +18,7 @@ resource "aws_vpc" "this" {
 
 # Internet Gateway
 resource "aws_internet_gateway" "this" {
-  count  = var.create_vpc && var.enable_flow_logs ? 1 : 0
+  count  = var.create_vpc ? 1 : 0
   vpc_id = aws_vpc.this[0].id
 
   tags = merge(
@@ -109,7 +109,7 @@ resource "aws_nat_gateway" "this" {
 
 # Public Route Table
 resource "aws_route_table" "public" {
-  count  = var.create_vpc && var.enable_flow_logs ? 1 : 0
+  count  = var.create_vpc ? 1 : 0
   vpc_id = aws_vpc.this[0].id
 
   route {
@@ -129,7 +129,7 @@ resource "aws_route_table" "public" {
 
 # Private Route Table
 resource "aws_route_table" "private" {
-  count = var.enable_nat_gateway ? 1 : 0
+  count = var.create_vpc && var.enable_nat_gateway ? 1 : 0
 
   vpc_id = aws_vpc.this[0].id
 
@@ -150,15 +150,15 @@ resource "aws_route_table" "private" {
 
 # Route Table Associations - Public
 resource "aws_route_table_association" "public" {
-  count = length(var.public_subnet_cidrs)
+  count = var.create_vpc ? length(var.public_subnet_cidrs) : 0
 
   subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public.id
+  route_table_id = aws_route_table.public[0].id
 }
 
 # Route Table Associations - Private
 resource "aws_route_table_association" "private" {
-  count = var.enable_nat_gateway ? length(var.private_subnet_cidrs) : 0
+  count = var.create_vpc && var.enable_nat_gateway ? length(var.private_subnet_cidrs) : 0
 
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private[0].id
@@ -166,7 +166,7 @@ resource "aws_route_table_association" "private" {
 
 # VPC Flow Logs
 resource "aws_flow_log" "this" {
-  count = var.enable_flow_logs ? 1 : 0
+  count = var.create_vpc && var.enable_flow_logs ? 1 : 0
 
   iam_role_arn    = aws_iam_role.flow_logs[0].arn
   log_destination = aws_cloudwatch_log_group.flow_logs[0].arn
@@ -184,7 +184,7 @@ resource "aws_flow_log" "this" {
 }
 
 resource "aws_cloudwatch_log_group" "flow_logs" {
-  count = var.enable_flow_logs ? 1 : 0
+  count = var.create_vpc && var.enable_flow_logs ? 1 : 0
 
   name              = "/aws/vpc/${var.environment}-flow-logs"
   retention_in_days = 30
@@ -200,7 +200,7 @@ resource "aws_cloudwatch_log_group" "flow_logs" {
 }
 
 resource "aws_iam_role" "flow_logs" {
-  count = var.enable_flow_logs ? 1 : 0
+  count = var.create_vpc && var.enable_flow_logs ? 1 : 0
 
   name = "${var.environment}-flow-logs-role"
 
@@ -228,7 +228,7 @@ resource "aws_iam_role" "flow_logs" {
 }
 
 resource "aws_iam_role_policy" "flow_logs" {
-  count = var.enable_flow_logs ? 1 : 0
+  count = var.create_vpc && var.enable_flow_logs ? 1 : 0
 
   name = "${var.environment}-flow-logs-policy"
   role = aws_iam_role.flow_logs[0].id
