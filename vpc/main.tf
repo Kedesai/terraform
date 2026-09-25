@@ -1,5 +1,7 @@
 # VPC
 resource "aws_vpc" "this" {
+  count = var.create_vpc ? 1 : 0
+
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = var.enable_dns_hostnames
   enable_dns_support   = var.enable_dns_support
@@ -16,7 +18,8 @@ resource "aws_vpc" "this" {
 
 # Internet Gateway
 resource "aws_internet_gateway" "this" {
-  vpc_id = aws_vpc.this.id
+  count  = var.create_vpc ? 1 : 0
+  vpc_id = aws_vpc.this[0].id
 
   tags = merge(
     {
@@ -30,9 +33,9 @@ resource "aws_internet_gateway" "this" {
 
 # Public Subnets
 resource "aws_subnet" "public" {
-  count = length(var.public_subnet_cidrs)
+  count = var.create_vpc ? length(var.public_subnet_cidrs) : 0
 
-  vpc_id                  = aws_vpc.this.id
+  vpc_id                  = aws_vpc.this[0].id
   cidr_block              = var.public_subnet_cidrs[count.index]
   availability_zone       = var.availability_zones[count.index % length(var.availability_zones)]
   map_public_ip_on_launch = true
@@ -50,9 +53,9 @@ resource "aws_subnet" "public" {
 
 # Private Subnets
 resource "aws_subnet" "private" {
-  count = length(var.private_subnet_cidrs)
+  count = var.create_vpc ? length(var.private_subnet_cidrs) : 0
 
-  vpc_id            = aws_vpc.this.id
+  vpc_id            = aws_vpc.this[0].id
   cidr_block        = var.private_subnet_cidrs[count.index]
   availability_zone = var.availability_zones[count.index % length(var.availability_zones)]
 
@@ -106,7 +109,8 @@ resource "aws_nat_gateway" "this" {
 
 # Public Route Table
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.this.id
+  count  = var.create_vpc ? 1 : 0
+  vpc_id = aws_vpc.this[0].id
 
   route {
     cidr_block = "0.0.0.0/0"
@@ -127,7 +131,7 @@ resource "aws_route_table" "public" {
 resource "aws_route_table" "private" {
   count = var.enable_nat_gateway ? 1 : 0
 
-  vpc_id = aws_vpc.this.id
+  vpc_id = aws_vpc.this[0].id
 
   route {
     cidr_block     = "0.0.0.0/0"

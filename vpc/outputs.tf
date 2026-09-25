@@ -1,26 +1,28 @@
 output "vpc_id" {
-  description = "The ID of the VPC"
-  value       = aws_vpc.this.id
+  description = "VPC ID"
+  value = var.create_vpc ? (
+    aws_vpc.this[0].id
+  ) : var.existing_vpc_id
 }
 
 output "vpc_cidr" {
   description = "The CIDR block of the VPC"
-  value       = aws_vpc.this.cidr_block
+  value       = var.create_vpc ? aws_vpc.this[0].cidr_block : null
 }
 
 output "public_subnet_ids" {
   description = "List of public subnet IDs"
-  value       = aws_subnet.public[*].id
+  value       = var.create_vpc ? aws_subnet.public[*].id : var.existing_public_subnet_ids
 }
 
 output "private_subnet_ids" {
   description = "List of private subnet IDs"
-  value       = aws_subnet.private[*].id
+  value       = var.create_vpc ? aws_subnet.private[*].id : var.existing_private_subnet_ids
 }
 
 output "internet_gateway_id" {
   description = "The ID of the Internet Gateway"
-  value       = aws_internet_gateway.this.id
+  value       = var.create_vpc ? aws_internet_gateway.this[0].id : null
 }
 
 output "nat_gateway_ids" {
