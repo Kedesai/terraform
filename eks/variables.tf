@@ -8,11 +8,7 @@ variable "cluster_name" {
 
 variable "cluster_version" {
   type    = string
-  default = "1.28"
-}
-
-variable "vpc_id" {
-  type = string
+  default = "1.34"
 }
 
 variable "subnet_ids" {
@@ -21,7 +17,7 @@ variable "subnet_ids" {
 
 variable "enable_irsa" {
   type    = bool
-  default = true
+  default = false
 }
 
 variable "cluster_role_arn" {
